@@ -1,0 +1,133 @@
+# rostify_db
+t users
+    pk      varchar     id
+    unique  varchar     username
+            varchar     password_hash
+            int         privilege
+                        ** 0: sys-admin
+                          10: manager
+                          11: normal user
+
+t employees
+    pk      varchar     id
+    unique_combination (
+            varchar     first_name
+            varchar     last_name
+    )
+    unique  varchar     nickname
+            int         age
+            int         gender
+            json        availability
+
+t areas
+    pk      varchar     id
+    unique  varchar     name
+
+t positions
+    pk      varchar     id
+    unique_combination (
+    fk      areas.id    area_id
+            varchar     name
+    )
+            int         physical_load
+            int         mental_load
+            int         minimum_employee
+            int         minimum_proficiency
+
+t tasks
+    pk      varchar     id
+    fk      areas.id    area_id
+    fk      positions.id    position_id
+            varchar     name
+            int         time_required
+                        ** minutes
+            int         minimum_employee
+            int         minimum_proficiency
+
+t shifts
+    pk      varchar     id
+    unique_combination (
+    fk      areas.id    area_id
+            varchar     name
+    )
+            time        begin_time
+            time        end_time
+            int         minimum_employee
+            int         minimum_proficiency
+
+t arrival_records
+    pk      varhar      id
+            date        date
+
+t employee_shifts
+    pk      varchar     id
+    unique_combination (
+    fk      employees.id    employee_id
+    fk      shifts.id       shift_id
+    )
+            int         proficiency
+            int         preference
+
+t employee_arrival_records
+    pk      varchar     id
+    unique_combination (
+    fk      employees.id        employee_id
+    fk      arrival_records.id     arrival_record_id
+    )
+    fk      shifts.id   shift_id
+            time        clock_in_time
+            time        clock_out_time
+            int         break_duration
+                        ** minutes
+            int         total_physical_load
+            int         total_mental_load
+    null    varchar     notice
+
+t employee_tasks
+    pk      varchar     id
+    unique_combination (
+    fk      employees.id    employee_id
+    fk      tasks.id    task_id
+    )
+            int         proficiency
+            int         preference
+
+t employee_positions
+    pk      varchar     id
+    unique_combination (
+    fk      employees.id employee_id
+    fk      positions.id position_id
+    )
+            int         proficiency
+            int         preference
+
+t task_conflicts
+    pk      varchar     id
+    unique_combination (
+    fk      tasks.id    done_task_id
+    fk      tasks.id    dont_do_task_id
+    )
+            int         severity
+            int         minimum_gap
+                        ** minutes
+            varchar     reason
+
+t position_conflicts
+    pk      varchar     id
+    unique_combination (
+    fk      positions.id    done_position_id
+    fk      positions.id    dont_do_position_id
+    )
+            int         severity
+            int         minimum_gap
+                        ** minutes
+            varchar     reason
+
+t employee_conflict
+    pk      varchar     id
+    unique_combination_both_way (
+    fk      employees.id    employee_a_id
+    fk      employees.id    employee_b_id
+    )
+            int         severity
+            varchar     reason
